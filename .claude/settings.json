@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=\"$CLAUDE_PROJECT_DIR/resimpli/memory.md\"; if [ -f \"$f\" ]; then age=$(( ( $(date +%s) - $(stat -c %Y \"$f\" 2>/dev/null || stat -f %m \"$f\") ) / 3600 )); if [ \"$age\" -ge 20 ]; then echo \"reSimpli memory is ${age}h old. Run /resimpli-daily to refresh.\"; fi; fi"
+          }
+        ]
+      }
+    ]
+  }
+}

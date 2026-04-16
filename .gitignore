@@ -9,6 +9,7 @@ __pycache__/
 venv/
 
 resimpli/raw/
+resimpli/.cache.json
 resimpli/*.log
 node_modules/
 .DS_Store
