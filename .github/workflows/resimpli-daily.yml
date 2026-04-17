@@ -27,6 +27,8 @@ jobs:
         run: pip install -r resimpli/requirements.txt
       - name: Pull reSimpli data
         env:
+          RESIMPLI_EMAIL: ${{ secrets.RESIMPLI_EMAIL }}
+          RESIMPLI_PASSWORD: ${{ secrets.RESIMPLI_PASSWORD }}
           RESIMPLI_API_TOKEN: ${{ secrets.RESIMPLI_API_TOKEN }}
         run: python resimpli/pull.py
       - name: Regenerate memory.md
