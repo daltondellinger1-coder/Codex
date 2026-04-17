@@ -1,0 +1,47 @@
+name: reSimpli Daily
+on:
+  schedule:
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  daily:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: claude/resimpli-data-extraction-665VC
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Restore API probe cache
+        uses: actions/cache@v4
+        with:
+          path: resimpli/.cache.json
+          key: resimpli-api-cache-v1
+      - name: Install dependencies
+        run: pip install -r resimpli/requirements.txt
+      - name: Pull reSimpli data
+        env:
+          RESIMPLI_API_TOKEN: ${{ secrets.RESIMPLI_API_TOKEN }}
+        run: python resimpli/pull.py
+      - name: Regenerate memory.md
+        run: python resimpli/summarize.py
+      - name: Send Slack summary
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: python resimpli/notify_slack.py
+        continue-on-error: true
+      - name: Commit snapshot
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add resimpli/memory.md resimpli/snapshots/
+          git diff --staged --quiet && echo "Nothing new to commit." || \
+            git commit -m "resimpli: daily snapshot $(date -u +%Y-%m-%d)"
+      - name: Push to branch
+        run: git push origin claude/resimpli-data-extraction-665VC
