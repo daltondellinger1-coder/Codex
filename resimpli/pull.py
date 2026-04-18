@@ -85,7 +85,14 @@ def login(session: requests.Session, email: str, password: str) -> str | None:
     try:
         r = session.post(
             url,
-            headers={"Content-Type": "application/json", "Accept": "application/json"},
+            headers={
+                "Content-Type": "application/json",
+                "Accept": "application/json, text/plain, */*",
+                "Origin": "https://dashboard.resimpli.com",
+                "Referer": "https://dashboard.resimpli.com/auth/login",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+                "Accept-Language": "en-US,en;q=0.9",
+            },
             json={"email": email, "password": password},
             timeout=15,
         )
