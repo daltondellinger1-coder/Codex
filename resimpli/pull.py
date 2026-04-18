@@ -337,8 +337,9 @@ def main() -> None:
     email, password, direct_jwt = load_credentials()
     session, jwt = get_session_and_jwt(email, password, direct_jwt)
 
-    if not probe(session, jwt):
-        sys.exit(1)
+    # Skip probe -- directly pull data to see per-endpoint results
+    print(f"[auth] jwt type: {'session sentinel' if jwt == '__session__' else 'bearer token' if jwt else 'none'}")
+    print(f"[auth] jwt length: {len(jwt) if jwt else 0}")
 
     exit_code = pull_all(session, jwt)
     sys.exit(exit_code)
