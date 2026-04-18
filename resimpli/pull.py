@@ -225,9 +225,14 @@ def get_session_and_jwt(
 # -- API helpers --------------------------------------------------------------
 
 def make_headers(jwt: str | None) -> dict:
-    h = {"Content-Type": "application/json", "Accept": "application/json"}
+    h = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Origin": "https://dashboard.resimpli.com",
+        "Referer": "https://dashboard.resimpli.com/",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    }
     if jwt and jwt != "__session__":
-        # ReSimpli uses a custom 'token' header (not Authorization: Bearer)
         h["token"] = jwt
         h["Authorization"] = f"Bearer {jwt}"
     return h
@@ -340,6 +345,9 @@ def main() -> None:
     # Skip probe -- directly pull data to see per-endpoint results
     print(f"[auth] jwt type: {'session sentinel' if jwt == '__session__' else 'bearer token' if jwt else 'none'}")
     print(f"[auth] jwt length: {len(jwt) if jwt else 0}")
+    if jwt and jwt != '__session__':
+        print(f"[auth] jwt prefix (first 10): {jwt[:10]}")
+        print(f"[auth] jwt suffix (last 6): {jwt[-6:]}")
 
     exit_code = pull_all(session, jwt)
     sys.exit(exit_code)
