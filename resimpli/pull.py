@@ -367,6 +367,17 @@ def main() -> None:
     if jwt and jwt != '__session__':
         print(f"[auth] jwt prefix (first 10): {jwt[:10]}")
         print(f"[auth] jwt suffix (last 6): {jwt[-6:]}")
+    
+    # Also test the Zapier-style API key as a direct fallback
+    direct_jwt_key = os.environ.get("RESIMPLI_API_TOKEN", "").strip()
+    if direct_jwt_key and direct_jwt_key != jwt:
+        print(f"[auth] also testing RESIMPLI_API_TOKEN key: {direct_jwt_key[:8]}...")
+        test_r = session.post(
+            "https://live-api.resimpli.com/api/v4/mainStatus/list",
+            headers={**make_headers(jwt), "token": direct_jwt_key, "Authorization": f"Bearer {direct_jwt_key}"},
+            json={}, timeout=15
+        )
+        print(f"[auth] API key test: {test_r.status_code} -> {test_r.text[:100]}")
 
     exit_code = pull_all(session, jwt)
     sys.exit(exit_code)
