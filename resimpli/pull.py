@@ -119,6 +119,25 @@ def login(session: requests.Session, email: str, password: str) -> str | None:
                     val = hval.strip()
                     if val.lower().startswith("bearer "):
                         val = val[7:]
+                    # Decode JWT payload to check expiry and userId
+                    try:
+                        import base64 as _b64
+                        payload_b64 = val.split('.')[1]
+                        payload_b64 += '=' * (4 - len(payload_b64) % 4)
+                        payload = json.loads(_b64.b64decode(payload_b64).decode())
+                        print(f"[auth] JWT payload keys: {list(payload.keys())}")
+                        if 'exp' in payload:
+                            import time as _time
+                            exp_in = int(payload['exp']) - int(_time.time())
+                            print(f"[auth] JWT exp in {exp_in}s ({exp_in//3600}h)")
+                        if 'iat' in payload:
+                            print(f"[auth] JWT iat: {payload.get('iat')}")
+                        # Store userId for use in requests
+                        _uid = payload.get('userId') or payload.get('user_id') or payload.get('id')
+                        if _uid:
+                            print(f"[auth] JWT userId: {_uid}")
+                    except Exception as _ex:
+                        print(f"[auth] JWT decode error: {_ex}")
                     return val
                 # Also check any header value that looks like a JWT
                 if len(hval) > 100 and hval.count(".") == 2:
