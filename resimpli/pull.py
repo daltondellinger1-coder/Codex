@@ -227,6 +227,8 @@ def get_session_and_jwt(
 def make_headers(jwt: str | None) -> dict:
     h = {"Content-Type": "application/json", "Accept": "application/json"}
     if jwt and jwt != "__session__":
+        # ReSimpli uses a custom 'token' header (not Authorization: Bearer)
+        h["token"] = jwt
         h["Authorization"] = f"Bearer {jwt}"
     return h
 
