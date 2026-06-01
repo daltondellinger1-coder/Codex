@@ -230,14 +230,20 @@ def get_session_and_jwt(
         result = login(session, email, password)
         if result:
             return session, result
-        sys.exit(
-            "ERROR: Login with RESIMPLI_EMAIL/RESIMPLI_PASSWORD failed.\n"
-            "Check that both env vars are set correctly."
-        )
+        if direct_jwt:
+            print(
+                "[auth] RESIMPLI_EMAIL/RESIMPLI_PASSWORD login failed; "
+                "falling back to RESIMPLI_API_TOKEN"
+            )
+        else:
+            sys.exit(
+                "ERROR: Login with RESIMPLI_EMAIL/RESIMPLI_PASSWORD failed.\n"
+                "Check that both env vars are set correctly, or set RESIMPLI_API_TOKEN as a fallback."
+            )
 
-    # Option B: direct JWT token
+    # Option B: direct JWT/API token
     if direct_jwt:
-        print("[auth] using RESIMPLI_API_TOKEN directly as Bearer JWT")
+        print("[auth] using RESIMPLI_API_TOKEN directly as Bearer token")
         return session, direct_jwt
 
     sys.exit(
